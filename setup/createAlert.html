@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New alert - IMSD</title>
+</head>
+<body>
+    <p>Create a new alert:</p>
+    <p>Alert name:</p>
+    <input type="text" name="name" id="name" placeholder="Name of alert">
+    <p>Alert from:</p>
+    <select name="agent" id="agent">
+        <option value="agent-1">Agent-1</option>
+        <option value="agent-2">Agent-2</option>
+    </select>
+    <p>Alert type:</p>
+    <select name="type" id="type">
+        <option value="CPU-exceed">CPU Exceed</option>
+        <option value="RAM-exceed">RAM Exceed</option>
+        <option value="Storage-exceed">Storage Exceed</option>
+        <option value="PING-latency">PING latency</option>
+        <option value="HTTP-error">HTTP-error</option>
+    </select>
+    <p>Alert solution:</p>
+    <select name="solution" id="solution">
+        <option value="execute_cmd">Execute a cmd on agent</option>
+        <option value="email_you">Send you an email with details</option>
+        <option value="discord_you">Send you an discord message with details (webnhook)</option>
+    </select>
+    <input type="email" name="email" id="email" placeholder="your email">
+    <input type="url" name="discord_web" id="discord_web" placeholder="Your webnhook discord">
+    <input type="text" name="cmd" id="cmd" placeholder="The CMD to execute to your client">
+    <button>Add new alert</button>
+</body>
+</html>
