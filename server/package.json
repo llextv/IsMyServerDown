@@ -13,6 +13,7 @@
     "dotenv": "^17.0.0",
     "express": "^5.1.0",
     "mysql2": "^3.14.1",
-    "nodemailer": "^7.0.4"
+    "nodemailer": "^7.0.4",
+    "ping": "^0.4.4"
   }
 }
