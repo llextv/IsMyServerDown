@@ -14,18 +14,19 @@ require('dotenv').config();
 app.use(cookieParser());
 app.use(express.json());
 
-app.get('/dashboard.html', authenticateToken, (req, res) => {
-    res.sendFile(__dirname + '/../public/dashboard.html');
-});
-app.get('/setup.html', authenticateToken, (req, res) => {
-    res.sendFile(__dirname + '/../public/setup.html');
-});
-app.get('/setup/createAlert.html', authenticateToken, (req, res) => {
-    res.sendFile(__dirname + '/../public/setup/createAlert.html');
-});
-app.get('/setup/newDataSource.html', authenticateToken, (req, res) => {
-    res.sendFile(__dirname + '/../public/setup/newDataSource.html');
-});
+//for publishing on server
+// app.get('/dashboard.html', authenticateToken, (req, res) => {
+//     res.sendFile(__dirname + '/../public/dashboard.html');
+// });
+// app.get('/setup.html', authenticateToken, (req, res) => {
+//     res.sendFile(__dirname + '/../public/setup.html');
+// });
+// app.get('/setup/createAlert.html', authenticateToken, (req, res) => {
+//     res.sendFile(__dirname + '/../public/setup/createAlert.html');
+// });
+// app.get('/setup/newDataSource.html', authenticateToken, (req, res) => {
+//     res.sendFile(__dirname + '/../public/setup/newDataSource.html');
+// });
 app.use(express.static('../public'));
 
 
