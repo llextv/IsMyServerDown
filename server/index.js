@@ -1,13 +1,52 @@
 const express = require('express');
 const mysql = require('mysql2');
 const app = express();
-const port = "8000"
+const port = "8000"; //if you change this -> change value on .html
 const nodemailer = require('nodemailer');
 const axios = require('axios');
 const ping = require('ping');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
+
 require('dotenv').config();
 
+app.use(cookieParser());
 app.use(express.json());
+
+app.get('/dashboard.html', authenticateToken, (req, res) => {
+    res.sendFile(__dirname + '/../public/dashboard.html');
+});
+app.get('/setup.html', authenticateToken, (req, res) => {
+    res.sendFile(__dirname + '/../public/setup.html');
+});
+app.get('/setup/createAlert.html', authenticateToken, (req, res) => {
+    res.sendFile(__dirname + '/../public/setup/createAlert.html');
+});
+app.get('/setup/newDataSource.html', authenticateToken, (req, res) => {
+    res.sendFile(__dirname + '/../public/setup/newDataSource.html');
+});
+app.use(express.static('../public'));
+
+
+
+function authenticateToken(req, res, next) {
+    const token = req.cookies.auth_token;
+
+    if (!token) {
+        return res.status(401).json({ message: 'Non autorisé, vous devez vous connecter.' });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user) => {
+        if (err) {
+        return res.status(403).json({ message: 'Token invalide' });
+        }
+
+        req.user = user;
+        next(); 
+    });
+}
+
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -35,9 +74,7 @@ connection.connect(err => {
   console.log('Connected to DB');
 });
 
-app.get('/', (req, res) => {
-    res.send("Hello world");
-})
+
 
 app.post('/api/register', (req, res) => {
     const { name, ip, os, type } = req.body;
@@ -75,6 +112,117 @@ app.post('/api/register', (req, res) => {
     });
 })
 
+async function getTotalRAM(){
+    try{
+        let totalRAM = 0;
+        let usedRAM = 0;
+        const sql_totalram = `SELECT * FROM constants WHERE metric_type = "ram_total";`;
+        const [totalResults] = await connection.promise().query(sql_totalram);
+        console.log("response: ", totalResults);
+
+        totalResults.forEach((value) => {
+            totalRAM += value["constant_value"];
+        });
+
+        const sql_usedRAM = `SELECT * FROM constants WHERE metric_type = "ram_used";`;
+        const [usedResults] = await connection.promise().query(sql_usedRAM);
+
+        usedResults.forEach((value) => {
+            usedRAM += value["constant_value"];
+        });
+
+        console.log(totalRAM);
+        console.log(usedRAM);
+        const usedRAMPercentage = (usedRAM * 100 / totalRAM).toFixed(0);
+        const availableRAMPercentage = 100 - usedRAMPercentage;
+        console.log("usedRAMPercentage: ", usedRAMPercentage);
+        
+        return {"RAM-used": Number(usedRAMPercentage), "RAM-available": Number(availableRAMPercentage)};
+    }catch(error){
+        console.log(error);
+        return null;
+    }
+    
+}
+
+async function getTotalStorage(){
+    try{
+        let totalDisk = 0;
+        let usedDisk = 0;
+        const sql_totaldisk = `SELECT * FROM constants WHERE metric_type = "disk_total";`;
+        const [totalResults] = await connection.promise().query(sql_totaldisk);
+        console.log("response: ", totalResults);
+
+        totalResults.forEach((value) => {
+            totalDisk += value["constant_value"];
+        });
+
+        const sql_usedDisk = `SELECT * FROM constants WHERE metric_type = "disk_used";`;
+        const [usedResults] = await connection.promise().query(sql_usedDisk);
+
+        usedResults.forEach((value) => {
+            usedDisk += value["constant_value"];
+        });
+
+        console.log(totalDisk);
+        console.log(usedDisk);
+        const usedDiskPercentage = (usedDisk * 100 / totalDisk).toFixed(0);
+        const availableDiskPercentage = 100 - usedDiskPercentage;
+        console.log("usedDISKPercentage: ", usedDiskPercentage);
+        
+        return {"DISK-used": Number(usedDiskPercentage), "DISK-available": Number(availableDiskPercentage)};
+    }catch(error){
+        console.log(error);
+        return null;
+    }
+    
+}
+
+app.get('/api/getramtotal', async (req, res) => {
+    let total = await getTotalRAM();
+    console.log(total);
+    if(total == null) res.status(500).send("DB Error");
+    res.status(200).json(total);
+});
+
+app.get('/api/getdisktotal', async (req, res) => {
+    let total = await getTotalStorage();
+    console.log(total);
+    if(total == null) res.status(500).send("DB Error");
+    res.status(200).json(total);    
+});
+
+
+app.get('/api/getstoragetotal', async (req, res) => {
+    let total = await getTotalRAM();
+    console.log(total);
+    if(total == null) res.status(500).send("DB Error");
+    res.status(200).json(total);
+});
+
+app.get('/api/getnumberserver', (req, res) => {
+    connection.query("SELECT COUNT(*) FROM subscriber;", (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send("Unhown error");
+        }
+    
+        return res.status(200).json(results[0]['COUNT(*)'])
+    });
+})
+
+app.get('/api/getactualalert', (req, res) => {
+    connection.query("SELECT * FROM alerts_logs;", (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send("Unhown error");
+        }
+    
+        return res.status(200).json(results)
+    });
+})
+
+
 function checkAlert(constant){
     let requestsql = `SELECT * FROM alerts WHERE subscriber_ip = ?`;
 
@@ -95,6 +243,16 @@ function checkAlert(constant){
                             (alert.min_value !== null && metricValue < alert.min_value)
                         ) {
                             console.log("alert over");
+                            const emergency = "Alert";
+                            const sql = "INSERT INTO `alerts_logs` (`name`, `type`, `subscriber_ip`, `message`, `multiplier`, `urgency`) VALUES (?, ?, ?, ?, 1, ?) ON DUPLICATE KEY UPDATE `multiplier` = `multiplier` + 1;"
+                            let name = constant.ip + " has exceeded the type threshold " + alert.metric_type;
+                            let message = `🚨 ${emergency}\nSubscriber : ${constant.ip}\nMetric : ${alert.metric_type}\nValue : ${metricValue}\nTreshold: min=${alert.min_value}, max=${alert.max_value}`
+                            connection.query(sql, [name, alert.metric_type, constant.ip, message, emergency], (err, results) => {
+                                if (err) {
+                                    console.error(err);
+                                    return res.status(500).send("Unhown error");
+                                }
+                            });
                             console.log(
                             `Alert for ${alert.metric_type} on subscriber ${constant.ip}: value = ${metricValue}`
                             );
@@ -343,8 +501,49 @@ function task_monitoring(){
 
 setInterval(() => {
     task_monitoring();
-}, 10000) // change to 300000
+}, 300000) // debug -> 10000
 
+
+
+
+app.post('/login', (req, res) => {
+    const {username, password} = req.body;
+    connection.query("SELECT * FROM users WHERE username = ?", [username], (err, results) => {
+        if (err) return res.status(500).json({ message: 'Server error' });
+        if(results.length === 0) return res.status(401).json({ message: 'User dont exist' });
+
+        const user = results[0];
+        bcrypt.compare(password, user.password, (err, isMatch) => {
+            if (err) {
+              return res.status(500).json({ message: 'Server error' });
+            }
+        
+            if (!isMatch) {
+              return res.status(401).json({ message: 'Incorrect password' });
+            }
+        
+            const token = jwt.sign(
+                { userId: user.id, username: user.username },
+                process.env.JWT_SECRET_KEY,
+                { expiresIn: '1h' }
+            );
+
+            res.cookie('auth_token', token, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'strict',
+                maxAge: 3600000
+            })
+
+            res.status(200).json({ message: 'Success' });
+        });
+    });
+})
+
+app.get('/logout', (req, res) => {
+  res.clearCookie('auth_token'); 
+  res.redirect('/login');
+});
 
 app.listen(port, () => {
     console.log("Listening on port: ", port);

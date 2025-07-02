@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - IMSD</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex">
+  <aside class="w-64 bg-white shadow-lg flex flex-col">
+    <div class="p-6 text-2xl font-bold text-blue-600">IMSD</div>
+    <nav class="flex-1">
+      <ul class="space-y-2 px-4">
+        <li><a href="#" class="block py-2 px-4 rounded hover:bg-blue-100 font-semibold text-blue-700">Dashboard</a></li>
+        <li><a href="/setup/newDataSource.html" class="block py-2 px-4 rounded hover:bg-blue-100">New Servers</a></li>
+        <li><a href="/setup/createAlert.html" class="block py-2 px-4 rounded hover:bg-blue-100">Setup Alerts</a></li>
+        <li><a href="#" class="block py-2 px-4 rounded hover:bg-blue-100">Contact Us</a></li>
+      </ul>
+    </nav>
+    <div class="p-4 text-xs text-gray-400">© 2025 IMSD</div>
+  </aside>
+
+  <main class="flex-1 p-8">
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+      <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">All Systems Operational</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6 flex items-center">
+        <div class="bg-blue-100 text-blue-600 rounded-full p-3 mr-4">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 17v-2a4 4 0 0 1 8 0v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+        <div>
+          <div class="text-2xl font-bold" id="number_server">0</div>
+          <div class="text-gray-500">Servers Monitored</div>
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6 flex items-center">
+        <div class="bg-green-100 text-green-600 rounded-full p-3 mr-4">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m10-11l2 2m-2-2v10a1 1 0 0 1-1 1h-3m-6 0h6"></path></svg>
+        </div>
+        <div>
+          <div class="text-2xl font-bold">99.9%</div>
+          <div class="text-gray-500">Uptime</div>
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6 flex items-center">
+        <div class="bg-red-100 text-red-600 rounded-full p-3 mr-4">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18.364 5.636l-1.414 1.414M6.343 17.657l-1.414 1.414M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle></svg>
+        </div>
+        <div>
+          <div class="text-2xl font-bold" id="numberAlert">0</div>
+          <div class="text-gray-500">Critical Alerts</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold mb-4 text-gray-700">Total RAM Usage</h2>
+        <canvas id="RAM_total_use" width="200" height="200"></canvas>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold mb-4 text-gray-700">Total Storage Usage</h2>
+        <canvas id="STORAGE_total_use" width="200" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="mt-10">
+      <h2 class="text-xl font-bold mb-4 text-gray-700">Recent Alerts</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="alert-div-insert">
+        <!-- <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded">
+          <div class="font-semibold text-yellow-700">Warning</div>
+          <div class="text-yellow-800">Server "pc_llex" RAM usage high (85%)</div>
+        </div>
+        <div class="bg-red-100 border-l-4 border-red-500 p-4 rounded">
+          <div class="font-semibold text-red-700">Critical</div>
+          <div class="text-red-800">Server "server-app" is down!</div>
+        </div> -->
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let divAlertInsert = document.getElementById("alert-div-insert");
+
+
+
+    (async function getActualAlert(){
+      let alertNumber = 0;
+      const request = await fetch("http://localhost:8000/api/getactualalert");
+      const response = await request.json();
+      console.log(response);
+      response.forEach(element => {
+        if(element['urgency'] == "Alert"){
+          alertNumber ++;
+          document.getElementById("alert-div-insert").appendChild(
+            document.createElement('div')
+          ).innerHTML = `
+            <div onclick="alert("${element["name"]}, ${element["message"]}")" class="bg-red-100 border-l-4 border-red-500 p-4 rounded">
+              <div class="font-semibold text-red-700">Critical</div>
+              <div class="text-red-800">${element["name"]} x${element["multiplier"]}</div>
+            </div>
+          `;
+        }else{
+          document.getElementById("alert-div-insert").appendChild(
+            document.createElement('div')
+          ).innerHTML = `
+            <div onclick="alert("${element["name"]}, ${element["message"]}")" class="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded">
+              <div class="font-semibold text-yellow-700">Critical</div>
+              <div class="text-yellow-800">${element["name"]} x${element["multiplier"]}</div>
+            </div>
+          `;
+        }
+      });
+      document.getElementById('numberAlert').innerText = alertNumber;
+    })();
+
+
+    async function getTotalServer(){
+      const response = await fetch("http://localhost:8000/api/getnumberserver")
+      if(!response || response == null || response == undefined) return 0;
+      const data = await response.json();
+      return data;
+    }
+    (async function() {let server_number = document.getElementById("number_server").innerText = await getTotalServer()})();
+
+
+    async function getRAMChartValue(){
+      const response = await fetch("http://localhost:8000/api/getramtotal");
+      if(!response || response == null || response == undefined) return [0, 0];
+      const data = await response.json();
+      return [data["RAM-used"], data["RAM-available"]];
+    }
+    async function getDISKChartValue(){
+      const response = await fetch("http://localhost:8000/api/getdisktotal");
+      if(!response || response == null || response == undefined) return [0, 0];
+      const data = await response.json();
+      return [data["DISK-used"], data["DISK-available"]];
+    }
+
+    // Store Chart instances globally so we can destroy them before creating new ones
+    let ramChartInstance = null;
+    let diskChartInstance = null;
+
+    (async function showGraphRAM() {
+      const ctxRAM = document.getElementById('RAM_total_use').getContext('2d');
+      let ramData = await getRAMChartValue();
+      console.log(ramData);
+      if (ramChartInstance) {
+        ramChartInstance.destroy();
+      }
+      if(ramData){
+        ramChartInstance = new Chart(ctxRAM, {
+          type: 'doughnut',
+          data: {
+            labels: ['Used', 'Free'],
+            datasets: [{
+              data: ramData,
+              backgroundColor: [
+                'rgba(34, 197, 94, 0.7)',
+                'rgba(229, 231, 235, 0.7)'
+              ],
+              borderWidth: 2
+            }]
+          },
+          options: {
+            cutout: '70%',
+            plugins: {
+              legend: { display: true, position: 'bottom' }
+            }
+          }
+        });
+      }
+    })();
+
+    (async function showGraphDisk() {
+      const ctxStorage = document.getElementById('STORAGE_total_use').getContext('2d');
+      let diskData = await getDISKChartValue();
+      console.log(diskData);
+      if (diskChartInstance) {
+        diskChartInstance.destroy();
+      }
+      if(diskData){
+        diskChartInstance = new Chart(ctxStorage, {
+          type: 'doughnut',
+          data: {
+            labels: ['Used', 'Free'],
+            datasets: [{
+              data: diskData,
+              backgroundColor: [
+                'rgba(59, 130, 246, 0.7)',
+                'rgba(229, 231, 235, 0.7)'
+              ],
+              borderWidth: 2
+            }]
+          },
+          options: {
+            cutout: '70%',
+            plugins: {
+              legend: { display: true, position: 'bottom' }
+            }
+          }
+        });
+      }
+    })();
+
+    async function refreshDashboardData() {
+      let alertNumber = 0;
+      const request = await fetch("http://localhost:8000/api/getactualalert");
+      const response = await request.json();
+      console.log(response);
+      const alertDiv = document.getElementById("alert-div-insert");
+      alertDiv.innerHTML = "";
+      response.forEach(element => {
+        if(element['urgency'] == "Alert"){
+          alertNumber ++;
+          alertDiv.appendChild(
+            document.createElement('div')
+          ).innerHTML = `
+            <div onclick="alert('${element["name"]}, ${element["message"]}')" class="bg-red-100 border-l-4 border-red-500 p-4 rounded">
+              <div class="font-semibold text-red-700">Critical</div>
+              <div class="text-red-800">${element["name"]} x${element["multiplier"]}</div>
+            </div>
+          `;
+        }else{
+          alertDiv.appendChild(
+            document.createElement('div')
+          ).innerHTML = `
+            <div onclick="alert('${element["name"]}, ${element["message"]}')" class="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded">
+              <div class="font-semibold text-yellow-700">Critical</div>
+              <div class="text-yellow-800">${element["name"]} x${element["multiplier"]}</div>
+            </div>
+          `;
+        }
+      });
+      document.getElementById('numberAlert').innerText = alertNumber;
+
+      const ctxRAM = document.getElementById('RAM_total_use').getContext('2d');
+      let ramData = await getRAMChartValue();
+      if (ramChartInstance) {
+        ramChartInstance.destroy();
+      }
+      if(ramData){
+        ramChartInstance = new Chart(ctxRAM, {
+          type: 'doughnut',
+          data: {
+            labels: ['Used', 'Free'],
+            datasets: [{
+              data: ramData,
+              backgroundColor: [
+                'rgba(34, 197, 94, 0.7)',
+                'rgba(229, 231, 235, 0.7)'
+              ],
+              borderWidth: 2
+            }]
+          },
+          options: {
+            cutout: '70%',
+            plugins: {
+              legend: { display: true, position: 'bottom' }
+            }
+          }
+        });
+      }
+
+      const ctxStorage = document.getElementById('STORAGE_total_use').getContext('2d');
+      let diskData = await getDISKChartValue();
+      if (diskChartInstance) {
+        diskChartInstance.destroy();
+      }
+      if(diskData){
+        diskChartInstance = new Chart(ctxStorage, {
+          type: 'doughnut',
+          data: {
+            labels: ['Used', 'Free'],
+            datasets: [{
+              data: diskData,
+              backgroundColor: [
+                'rgba(59, 130, 246, 0.7)',
+                'rgba(229, 231, 235, 0.7)'
+              ],
+              borderWidth: 2
+            }]
+          },
+          options: {
+            cutout: '70%',
+            plugins: {
+              legend: { display: true, position: 'bottom' }
+            }
+          }
+        });
+      }
+    }
+
+    setInterval(refreshDashboardData, 60000);
+  </script>
+</body>
+</html>

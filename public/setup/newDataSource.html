@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Data Source - IMSD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex">
+    <aside class="w-64 bg-white shadow-lg flex flex-col">
+        <div class="p-6 text-2xl font-bold text-blue-600">IMSD</div>
+        <nav class="flex-1">
+            <ul class="space-y-2 px-4">
+                <li><a href="../dashboard.html" class="block py-2 px-4 rounded hover:bg-blue-100">Dashboard</a></li>
+                <li><a href="#" class="block py-2 px-4 rounded bg-blue-100 font-semibold text-blue-700">Setup</a></li>
+                <li><a href="#" class="block py-2 px-4 rounded hover:bg-blue-100">Contact Us</a></li>
+            </ul>
+        </nav>
+        <div class="p-4 text-xs text-gray-400">© 2025 IMSD</div>
+    </aside>
+
+    <main class="flex-1 p-8">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Add a New Data Source</h1>
+        </div>
+        <form class="bg-white rounded-lg shadow p-8 max-w-xl mx-auto space-y-6">
+            <div>
+                <label for="name" class="block text-gray-700 font-semibold mb-1">Name</label>
+                <input type="text" name="name" id="name" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-blue-400" placeholder="Data source name">
+            </div>
+            <div>
+                <label for="agent_type" class="block text-gray-700 font-semibold mb-1">Type</label>
+                <select name="agent_type" id="agent_type" class="w-full border border-gray-300 rounded px-3 py-2">
+                    <option value="windows">Windows Server / Windows PC</option>
+                    <option value="linux">Linux Server</option>
+                    <option value="website">Website check</option>
+                </select>
+            </div>
+            <div>
+                <label for="data_source" class="block text-gray-700 font-semibold mb-1">Data Source</label>
+                <select name="data_source" id="data_source" class="w-full border border-gray-300 rounded px-3 py-2">
+                    <option value="ping">From a ping</option>
+                    <option value="installed_agent">From an installed agent</option>
+                    <option value="website_check">From a connection to website</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-semibold mb-1">Connection Infos</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <input type="text" name="ip" id="ip" class="border border-gray-300 rounded px-3 py-2" placeholder="IP of server">
+                    <input type="text" name="url" id="url" class="border border-gray-300 rounded px-3 py-2" placeholder="URL of website">
+                    <input type="text" name="port" id="port" class="border border-gray-300 rounded px-3 py-2" placeholder="Port">
+                </div>
+            </div>
+            <div>
+                <label for="frequencies" class="block text-gray-700 font-semibold mb-1">Frequencies (in seconds)</label>
+                <input type="number" name="frequencies" id="frequencies" class="w-full border border-gray-300 rounded px-3 py-2" min="1">
+            </div>
+            <div>
+                <label class="block text-gray-700 font-semibold mb-1">Auth Data</label>
+                <div class="flex items-center mb-2">
+                    <input type="checkbox" name="isAuth" id="isAuth" class="mr-2">
+                    <label for="isAuth" class="text-gray-600">Is authenticated?</label>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <input type="text" name="username" id="username" class="border border-gray-300 rounded px-3 py-2" placeholder="Username">
+                    <input type="password" name="password" id="password" class="border border-gray-300 rounded px-3 py-2" placeholder="Password">
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow">Add Data Source</button>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

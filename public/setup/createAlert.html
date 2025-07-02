@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Alert - IMSD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex">
+    <aside class="w-64 bg-white shadow-lg flex flex-col">
+        <div class="p-6 text-2xl font-bold text-blue-600">IMSD</div>
+        <nav class="flex-1">
+            <ul class="space-y-2 px-4">
+                <li><a href="../dashboard.html" class="block py-2 px-4 rounded hover:bg-blue-100">Dashboard</a></li>
+                <li><a href="newDataSource.html" class="block py-2 px-4 rounded hover:bg-blue-100">New Servers</a></li>
+                <li><a href="#" class="block py-2 px-4 rounded bg-blue-100 font-semibold text-blue-700">Setup Alert</a></li>
+                <li><a href="#" class="block py-2 px-4 rounded hover:bg-blue-100">Contact Us</a></li>
+            </ul>
+        </nav>
+        <div class="p-4 text-xs text-gray-400">© 2025 IMSD</div>
+    </aside>
+
+    <main class="flex-1 p-8">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Create a New Alert</h1>
+        </div>
+        <form class="bg-white rounded-lg shadow p-8 max-w-xl mx-auto space-y-6">
+            <div>
+                <label for="name" class="block text-gray-700 font-semibold mb-1">Alert Name</label>
+                <input type="text" name="name" id="name" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-blue-400" placeholder="Name of alert">
+            </div>
+            <div>
+                <label for="agent" class="block text-gray-700 font-semibold mb-1">Alert From</label>
+                <select name="agent" id="agent" class="w-full border border-gray-300 rounded px-3 py-2">
+                    <option value="agent-1">Agent-1</option>
+                    <option value="agent-2">Agent-2</option>
+                </select>
+            </div>
+            <div>
+                <label for="type" class="block text-gray-700 font-semibold mb-1">Alert Type</label>
+                <select name="type" id="type" class="w-full border border-gray-300 rounded px-3 py-2">
+                    <option value="CPU-exceed">CPU Exceed</option>
+                    <option value="RAM-exceed">RAM Exceed</option>
+                    <option value="Storage-exceed">Storage Exceed</option>
+                    <option value="PING-latency">PING latency</option>
+                    <option value="HTTP-error">HTTP-error</option>
+                </select>
+            </div>
+            <div>
+                <label for="solution" class="block text-gray-700 font-semibold mb-1">Alert Solution</label>
+                <select name="solution" id="solution" class="w-full border border-gray-300 rounded px-3 py-2">
+                    <option value="execute_cmd">Execute a cmd on agent</option>
+                    <option value="email_you">Send you an email with details</option>
+                    <option value="discord_you">Send you a Discord message with details (webhook)</option>
+                </select>
+            </div>
+            <div>
+                <label for="email" class="block text-gray-700 font-semibold mb-1">Your Email (if email alert)</label>
+                <input type="email" name="email" id="email" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="your email">
+            </div>
+            <div>
+                <label for="discord_web" class="block text-gray-700 font-semibold mb-1">Discord Webhook (if Discord alert)</label>
+                <input type="url" name="discord_web" id="discord_web" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Your Discord webhook">
+            </div>
+            <div>
+                <label for="cmd" class="block text-gray-700 font-semibold mb-1">CMD to Execute (if CMD alert)</label>
+                <input type="text" name="cmd" id="cmd" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="The CMD to execute on your client">
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow">Add New Alert</button>
+            </div>
+        </form>
+    </main>
+</body>
+</html>
