@@ -8,6 +8,12 @@ const ping = require('ping');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
+
+app.use(cors({
+    origin: '*',
+    credentials: true 
+}));
 
 require('dotenv').config();
 

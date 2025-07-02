@@ -27,7 +27,7 @@ CREATE TABLE `task-monitoring` (
 
 CREATE TABLE `alerts` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `subscriber_ip` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `subscriber_ip` varchar(100) CHARACTER SET utf8mb4 DEFAULT NULL,
   `metric_type` varchar(50) DEFAULT NULL,
   `max_value` float DEFAULT NULL,
   `min_value` float DEFAULT NULL,
