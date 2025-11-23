@@ -1,75 +1,146 @@
+# 🖥️ IsMyServerDown
 
-# Welcome to IsMyServerDown repo
+**IsMyServerDown** is a server & application monitoring tool that allows you to:
 
-Installation Guide:
+* 🚨 Set alerts in case of crashes or abnormal behavior
+* ⚡ Automate quick actions (macros) like restarting a lagging machine
+* 📊 Monitor multiple servers/PCs from a single dashboard
 
-- Install and setup a MySql database (name: ismyserverdown_bdd)
+---
 
-**Table to include in this database:** 
+## ✨ Features
+
+* 📡 Real-time monitoring of servers & applications
+* 🔔 Custom alert system (critical/warning notifications)
+* 🤖 Automation via quick macros for events
+* 📝 Logs of all alerts and actions
+* 💻 Multi-platform support (Windows/Linux servers)
+
+---
+
+## 🛠️ Installation Guide
+
+### 1️⃣ Database Setup
+
+Install and configure a MySQL database named **`ismyserverdown_bdd`**.
+
+#### Tables
 
 ```sql
+-- Users
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100),
   email VARCHAR(100) UNIQUE,
-  op_level INT(50) 
+  op_level INT(50)
 );
 
+-- Tasks
 CREATE TABLE `task-monitoring` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `type` varchar(100) NOT NULL,
-  `ip` varchar(100) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `register` tinyint(1) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_ip` (`ip`)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  type VARCHAR(100) NOT NULL,
+  ip VARCHAR(100) NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  register TINYINT(1) NOT NULL,
+  UNIQUE KEY unique_ip (ip)
 );
 
-CREATE TABLE `alerts` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `subscriber_ip` varchar(100) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `metric_type` varchar(50) DEFAULT NULL,
-  `max_value` float DEFAULT NULL,
-  `min_value` float DEFAULT NULL,
-  `action_type` varchar(500) DEFAULT '[]',
-  `status` enum('enable','disable') DEFAULT 'enable',
-  `created_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
+-- Alerts
+CREATE TABLE alerts (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  subscriber_ip VARCHAR(100) DEFAULT NULL,
+  metric_type VARCHAR(50) DEFAULT NULL,
+  max_value FLOAT DEFAULT NULL,
+  min_value FLOAT DEFAULT NULL,
+  action_type VARCHAR(500) DEFAULT '[]',
+  status ENUM('enable','disable') DEFAULT 'enable',
+  created_at DATETIME DEFAULT NULL
 );
 
-CREATE TABLE `subscriber` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `pc_name` varchar(100) DEFAULT NULL,
-  `ip` varchar(100) DEFAULT NULL,
-  `os` varchar(100) DEFAULT NULL,
-  `pc_type` varchar(100) DEFAULT NULL,
-  `register` tinyint(1) DEFAULT NULL,
-  `added` tinyint(1) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_ip` (`ip`)
+-- Subscribers
+CREATE TABLE subscriber (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  pc_name VARCHAR(100) DEFAULT NULL,
+  ip VARCHAR(100) DEFAULT NULL,
+  os VARCHAR(100) DEFAULT NULL,
+  pc_type VARCHAR(100) DEFAULT NULL,
+  register TINYINT(1) DEFAULT NULL,
+  added TINYINT(1) DEFAULT NULL,
+  UNIQUE KEY unique_ip (ip)
 );
 
-CREATE TABLE `constants` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `subscriber_id` varchar(100) DEFAULT NULL,
-  `metric_type` varchar(50) DEFAULT NULL,
-  `constant_value` float DEFAULT NULL,
-  `status` enum('warning','critical','normal') DEFAULT 'normal',
-  `updated_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_metric_per_subscriber` (`subscriber_id`,`metric_type`)
-)
+-- Constants
+CREATE TABLE constants (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  subscriber_id VARCHAR(100) DEFAULT NULL,
+  metric_type VARCHAR(50) DEFAULT NULL,
+  constant_value FLOAT DEFAULT NULL,
+  status ENUM('warning','critical','normal') DEFAULT 'normal',
+  updated_at DATETIME DEFAULT NULL,
+  UNIQUE KEY unique_metric_per_subscriber (subscriber_id, metric_type)
+);
 
-CREATE TABLE `alerts_logs` (`id` INT NOT NULL AUTO_INCREMENT , `name` VARCHAR(255) NOT NULL , `type` VARCHAR(255) NOT NULL , `subscriber_ip` VARCHAR(255) NOT NULL , `message` VARCHAR(255) NOT NULL , `multiplier` INT NOT NULL , `urgency` VARCHAR(255) NOT NULL , PRIMARY KEY (`id`))
+-- Alerts logs
+CREATE TABLE alerts_logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  type VARCHAR(255) NOT NULL,
+  subscriber_ip VARCHAR(255) NOT NULL,
+  message VARCHAR(255) NOT NULL,
+  multiplier INT NOT NULL,
+  urgency VARCHAR(255) NOT NULL
+);
 ```
-- Create a .env with your informations:
-```js
+
+---
+
+### 2️⃣ Environment Variables
+
+Create a `.env` file with your configuration:
+
+```env
 EMAIL_FROM=
 EMAIL_PASSWORD=
 DB_HOST=
 DB_USER=
 DB_PASSWORD=
 ```
-- Download the Win File of Agent (Python builder) and install it on your server / pc etc ..
 
-- Start the node js server on your server, configure your PC ... from **THE DATABASE FOR THE MOMENT**
+---
+
+### 3️⃣ Install the Agent
+
+* 💾 Download the Windows agent (Python builder)
+* ⚙️ Install it on your server or PC to monitor
+
+---
+
+### 4️⃣ Start the Server
+
+* 🚀 Run the Node.js server
+* 🖥️ Configure monitored PCs/servers from the database
+
+---
+
+### 5️⃣ Usage
+
+* ➕ Add subscribers (servers/PCs) in the `subscriber` table
+* 📌 Configure tasks and metrics in `task-monitoring`
+* 🔔 Set alerts and actions in `alerts`
+* 📄 Check logs in `alerts_logs`
+
+---
+
+### 📄 License
+
+This project is licensed under the **Apache License 2.0**.
+
+You are free to **use, modify, distribute, and contribute** to this project, but you must:
+
+* Include the original license and copyright notice
+* Give proper credit to the original author
+* Indicate if changes were made
+
+Learn more about Apache 2.0 here: [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
+
+---
